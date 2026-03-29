@@ -11,3 +11,20 @@ export type CreateSubjectPayload = Omit<
 > & { presentCount?: number; totalLectures?: number };
 
 export type UpdateSubjectPayload = Partial<Omit<Subject, "id">>;
+
+export interface Log {
+	id: number;
+	didAttend: boolean;
+	subjectId: number;
+	timestamp?: number;
+}
+
+export interface LogDbRow {
+	id: number;
+	didAttend: number;
+	subjectId: number;
+	timestamp?: number;
+}
+
+export type CreateLogPayload = Omit<Log, "id">;
+export type UpdateLogPayload = Partial<Omit<Log, "id" | "subjectId">>;

@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { SubjectService } from "@/services";
-import type { CreateSubjectPayload } from "@/types";
+import type { CreateSubjectPayload, UpdateSubjectPayload } from "@/types";
 
 const subjectService = new SubjectService(db);
 
@@ -17,9 +17,9 @@ export async function handleRequest(req: Request): Promise<Response> {
 
 		if (method === "POST") {
 			try {
-				const body = await req.json();
+				const body = (await req.json()) as CreateSubjectPayload;
 
-				const result = subjectService.create({
+				const result = subjectService.createSubject({
 					name: body.name,
 					totalLectures: body.totalLectures,
 					presentCount: body.presentCount,
@@ -57,6 +57,27 @@ export async function handleRequest(req: Request): Promise<Response> {
 				}
 
 				return new Response(null, { status: 204 });
+			} catch {
+				return Response.json(
+					{ error: "Internal Server Error" },
+					{ status: 500 },
+				);
+			}
+		}
+
+		if (method === "PATCH") {
+			try {
+				const payload = await req.json();
+				const result = subjectService.updateById(
+					subjectId,
+					payload as UpdateSubjectPayload,
+				);
+
+				if (result?.changes === 0) {
+					return Response.json({ error: "Subject not found" }, { status: 404 });
+				}
+
+				return Response.json(result, { status: 200 });
 			} catch {
 				return Response.json(
 					{ error: "Internal Server Error" },
