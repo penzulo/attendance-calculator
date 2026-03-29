@@ -45,6 +45,11 @@ export const UpdateLogPayloadSchema = t.Partial(
 	{ minProperties: 1 },
 );
 
+export const ChangesSchema = t.Object({
+	changes: t.Numeric(),
+	lastInsertRowid: t.Union([t.Numeric(), t.BigInt()]),
+});
+
 export type Subject = typeof SubjectSchema.static;
 export type CreateSubjectPayload = typeof CreateSubjectPayloadSchema.static;
 export type UpdateSubjectPayload = typeof UpdateSubjectPayloadSchema.static;

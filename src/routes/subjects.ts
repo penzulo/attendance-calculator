@@ -2,17 +2,23 @@ import { Elysia, StatusMap, t } from "elysia";
 import { db } from "@/db";
 import { SubjectService } from "@/services";
 import {
+	ChangesSchema,
 	CreateSubjectPayloadSchema,
+	SubjectSchema,
 	UpdateSubjectPayloadSchema,
 } from "@/types";
 
 const subjectService = new SubjectService(db);
 
 export const subjectRoutes = new Elysia({ prefix: "/subjects" })
-	.get("/", ({ set }) => {
-		set.status = StatusMap.OK;
-		return subjectService.findAll();
-	})
+	.get(
+		"/",
+		({ set }) => {
+			set.status = StatusMap.OK;
+			return subjectService.findAll();
+		},
+		{ response: t.Array(SubjectSchema) },
+	)
 
 	.get(
 		"/:id",
@@ -24,7 +30,10 @@ export const subjectRoutes = new Elysia({ prefix: "/subjects" })
 			}
 			return subject;
 		},
-		{ params: t.Object({ id: t.Numeric() }) },
+		{
+			params: t.Object({ id: t.Numeric() }),
+			response: t.Union([t.Object({ error: t.String() }), SubjectSchema]),
+		},
 	)
 
 	.post(
@@ -45,7 +54,13 @@ export const subjectRoutes = new Elysia({ prefix: "/subjects" })
 				throw error;
 			}
 		},
-		{ body: CreateSubjectPayloadSchema },
+		{
+			body: CreateSubjectPayloadSchema,
+			response: t.Union([
+				t.Object({ id: t.Union([t.Numeric(), t.BigInt()]) }),
+				t.Object({ error: t.String() }),
+			]),
+		},
 	)
 
 	.patch(
@@ -59,6 +74,7 @@ export const subjectRoutes = new Elysia({ prefix: "/subjects" })
 					return { error: "Subject not found" };
 				}
 
+				set.status = StatusMap.OK;
 				return { success: true };
 			} catch (error: unknown) {
 				if (error instanceof Error && error.message.includes("already taken")) {
@@ -79,6 +95,10 @@ export const subjectRoutes = new Elysia({ prefix: "/subjects" })
 		{
 			params: t.Object({ id: t.Numeric() }),
 			body: UpdateSubjectPayloadSchema,
+			response: t.Union([
+				t.Object({ error: t.String() }),
+				t.Object({ success: t.Boolean() }),
+			]),
 		},
 	)
 
@@ -90,8 +110,12 @@ export const subjectRoutes = new Elysia({ prefix: "/subjects" })
 				set.status = StatusMap["Not Found"];
 				return { error: "Subject not found" };
 			}
+
+			set.status = StatusMap["No Content"];
+			return result;
 		},
 		{
 			params: t.Object({ id: t.Numeric() }),
+			response: t.Union([t.Object({ error: t.String() }), ChangesSchema]),
 		},
 	);
