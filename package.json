@@ -1,0 +1,17 @@
+{
+	"name": "attendace",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"format": "biome format --write",
+		"check": "biome check --write"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.9",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
+}
