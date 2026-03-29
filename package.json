@@ -1,17 +1,15 @@
 {
-	"name": "attendace",
-	"module": "index.ts",
-	"type": "module",
-	"private": true,
-	"scripts": {
-		"format": "biome format --write",
-		"check": "biome check --write"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "2.4.9",
-		"@types/bun": "latest"
-	},
-	"peerDependencies": {
-		"typescript": "^5"
-	}
+  "name": "attendance",
+  "version": "1.0.50",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "elysia": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "module": "src/index.js"
 }
