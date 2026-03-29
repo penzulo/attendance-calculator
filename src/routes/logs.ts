@@ -27,6 +27,8 @@ export const logRoutes = new Elysia({ prefix: "/logs" })
 				set.status = StatusMap["Not Found"];
 				return { error: "Log not found" };
 			}
+
+			set.status = StatusMap.OK;
 			return log;
 		},
 		{
@@ -56,7 +58,7 @@ export const logRoutes = new Elysia({ prefix: "/logs" })
 		{
 			body: CreateLogPayloadSchema,
 			response: t.Union([
-				t.Object({ id: t.Numeric() }),
+				t.Object({ id: t.Number() }),
 				t.Object({ error: t.String() }),
 			]),
 		},
@@ -73,6 +75,7 @@ export const logRoutes = new Elysia({ prefix: "/logs" })
 					return { error: "Log not found" };
 				}
 
+				set.status = StatusMap.OK;
 				return { success: true };
 			} catch (error: unknown) {
 				if (error instanceof Error && error.message.includes("Log with ID")) {
@@ -111,7 +114,7 @@ export const logRoutes = new Elysia({ prefix: "/logs" })
 				}
 
 				set.status = StatusMap["No Content"];
-				return { success: true };
+				return undefined;
 			} catch (error: unknown) {
 				if (error instanceof Error && error.message.includes("not found")) {
 					set.status = StatusMap["Not Found"];
@@ -123,9 +126,6 @@ export const logRoutes = new Elysia({ prefix: "/logs" })
 		},
 		{
 			params: t.Object({ id: t.Numeric() }),
-			response: t.Union([
-				t.Object({ error: t.String() }),
-				t.Object({ success: t.Boolean() }),
-			]),
+			response: t.Union([t.Object({ error: t.String() }), t.Undefined()]),
 		},
 	);

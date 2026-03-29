@@ -2,6 +2,8 @@ import { Database } from "bun:sqlite";
 
 export const db = new Database("attendance.sqlite", { create: true });
 
+db.run("PRAGMA foreign_keys = ON;");
+
 db.run(`
   CREATE TABLE IF NOT EXISTS subjects (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
