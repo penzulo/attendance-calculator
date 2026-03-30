@@ -1,6 +1,6 @@
 import { Database } from "bun:sqlite";
 
-export const db = new Database("attendance.sqlite", { create: true });
+export const db = new Database("attendance.sqlite", { create: true })
 
 db.run("PRAGMA foreign_keys = ON;");
 

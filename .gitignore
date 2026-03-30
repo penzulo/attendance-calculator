@@ -35,3 +35,13 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # SQLite database
 attendance.sqlite
+
+dist/
+tmp/
+out-tsc/
+bazel-out/
+
+# Angular cache and testing
+.angular/
+.cache/
+coverage/
