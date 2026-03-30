@@ -17,6 +17,7 @@
     "concurrently": "^9.2.1"
   },
   "dependencies": {
-    "@bogeychan/elysia-logger": "^0.1.10"
+    "@bogeychan/elysia-logger": "^0.1.10",
+    "@elysiajs/openapi": "^1.4.14"
   }
 }
