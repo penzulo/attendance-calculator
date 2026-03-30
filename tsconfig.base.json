@@ -1,0 +1,10 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"baseUrl": ".",
+		"paths": {
+			"@server/*": ["./server/src/*"],
+			"@client/*": ["./client/src/*"]
+		}
+	}
+}

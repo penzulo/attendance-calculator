@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+bunx --bun @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --staged

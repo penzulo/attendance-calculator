@@ -1,53 +1,53 @@
-import { t } from "elysia"
+import { t } from "elysia";
 
 export const SubjectSchema = t.Object({
-  id: t.Numeric(),
-  name: t.String(),
-  presentCount: t.Numeric(),
-  totalLectures: t.Numeric(),
+	id: t.Numeric(),
+	name: t.String(),
+	presentCount: t.Numeric(),
+	totalLectures: t.Numeric(),
 });
 
 export const CreateSubjectPayloadSchema = t.Object({
-  name: t.String(),
-  presentCount: t.Optional(t.Numeric()),
-  totalLectures: t.Optional(t.Numeric()),
+	name: t.String(),
+	presentCount: t.Optional(t.Numeric()),
+	totalLectures: t.Optional(t.Numeric()),
 });
 
 export const UpdateSubjectPayloadSchema = t.Partial(SubjectSchema, {
-  minProperties: 1,
+	minProperties: 1,
 });
 
 export const LogSchema = t.Object({
-  id: t.Numeric(),
-  didAttend: t.Boolean(),
-  subjectId: t.Numeric(),
-  timestamp: t.Optional(t.Numeric()),
+	id: t.Numeric(),
+	didAttend: t.Boolean(),
+	subjectId: t.Numeric(),
+	timestamp: t.Optional(t.Numeric()),
 });
 
 export const LogDbRowSchema = t.Object({
-  id: t.Numeric(),
-  didAttend: t.Numeric(),
-  subjectId: t.Numeric(),
-  timestamp: t.Optional(t.Numeric()),
+	id: t.Numeric(),
+	didAttend: t.Numeric(),
+	subjectId: t.Numeric(),
+	timestamp: t.Optional(t.Numeric()),
 });
 
 export const CreateLogPayloadSchema = t.Object({
-  didAttend: t.Boolean(),
-  subjectId: t.Numeric(),
-  timestamp: t.Optional(t.Numeric()),
+	didAttend: t.Boolean(),
+	subjectId: t.Numeric(),
+	timestamp: t.Optional(t.Numeric()),
 });
 
 export const UpdateLogPayloadSchema = t.Partial(
-  t.Object({
-    didAttend: t.Boolean(),
-    timestamp: t.Numeric(),
-  }),
-  { minProperties: 1 },
+	t.Object({
+		didAttend: t.Boolean(),
+		timestamp: t.Numeric(),
+	}),
+	{ minProperties: 1 },
 );
 
 export const ChangesSchema = t.Object({
-  changes: t.Numeric(),
-  lastInsertRowid: t.Union([t.Numeric(), t.BigInt()]),
+	changes: t.Numeric(),
+	lastInsertRowid: t.Union([t.Numeric(), t.BigInt()]),
 });
 
 export type Subject = typeof SubjectSchema.static;

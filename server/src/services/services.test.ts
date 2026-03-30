@@ -1,17 +1,17 @@
 import { Database } from "bun:sqlite";
 import { beforeEach, describe, expect, it } from "bun:test";
-import { LogService, SubjectService } from "@/services";
+import { LogService, SubjectService } from "@server/services";
 
 describe("Service Layer Integration Tests", () => {
-  let db: Database;
-  let subjectService: SubjectService;
-  let logService: LogService;
+	let db: Database;
+	let subjectService: SubjectService;
+	let logService: LogService;
 
-  beforeEach(() => {
-    db = new Database(":memory:");
-    db.run("PRAGMA foreign_keys = ON;");
+	beforeEach(() => {
+		db = new Database(":memory:");
+		db.run("PRAGMA foreign_keys = ON;");
 
-    db.run(`
+		db.run(`
 			CREATE TABLE subjects (
 				id INTEGER PRIMARY KEY AUTOINCREMENT,
 				name TEXT UNIQUE,
@@ -20,7 +20,7 @@ describe("Service Layer Integration Tests", () => {
 			);
 		`);
 
-    db.run(`
+		db.run(`
 			CREATE TABLE logs (
 				id INTEGER PRIMARY KEY AUTOINCREMENT, 
 				did_attend INTEGER DEFAULT 0, 
@@ -30,39 +30,39 @@ describe("Service Layer Integration Tests", () => {
 			);
 		`);
 
-    subjectService = new SubjectService(db);
-    logService = new LogService(db);
-  });
+		subjectService = new SubjectService(db);
+		logService = new LogService(db);
+	});
 
-  describe("SubjectService", () => {
-    it("should create a new subject successfully", () => {
-      const result = subjectService.createSubject({ name: "Mathematics" });
+	describe("SubjectService", () => {
+		it("should create a new subject successfully", () => {
+			const result = subjectService.createSubject({ name: "Mathematics" });
 
-      expect(result.lastInsertRowid).toBeDefined();
+			expect(result.lastInsertRowid).toBeDefined();
 
-      const subject = subjectService.findById(result.lastInsertRowid as number);
-      expect(subject?.name).toBe("Mathematics");
-      expect(subject?.totalLectures).toBe(0);
-    });
+			const subject = subjectService.findById(result.lastInsertRowid as number);
+			expect(subject?.name).toBe("Mathematics");
+			expect(subject?.totalLectures).toBe(0);
+		});
 
-    it("should throw an error on duplicate subject names", () => {
-      subjectService.createSubject({ name: "Physics" });
-      expect(() => subjectService.createSubject({ name: "Physics" })).toThrow(
-        "Subject 'Physics' already exists.",
-      );
-    });
-  });
+		it("should throw an error on duplicate subject names", () => {
+			subjectService.createSubject({ name: "Physics" });
+			expect(() => subjectService.createSubject({ name: "Physics" })).toThrow(
+				"Subject 'Physics' already exists.",
+			);
+		});
+	});
 
-  describe("LogService", () => {
-    it("should accurately increment totals when logging a presence", () => {
-      const subjectResult = subjectService.createSubject({ name: "Chemistry" });
-      const subjectId = subjectResult.lastInsertRowid as number;
+	describe("LogService", () => {
+		it("should accurately increment totals when logging a presence", () => {
+			const subjectResult = subjectService.createSubject({ name: "Chemistry" });
+			const subjectId = subjectResult.lastInsertRowid as number;
 
-      logService.createLog({ subjectId, didAttend: true });
+			logService.createLog({ subjectId, didAttend: true });
 
-      const subject = subjectService.findById(subjectId);
-      expect(subject?.totalLectures).toBe(1);
-      expect(subject?.presentCount).toBe(1);
-    });
-  });
+			const subject = subjectService.findById(subjectId);
+			expect(subject?.totalLectures).toBe(1);
+			expect(subject?.presentCount).toBe(1);
+		});
+	});
 });

@@ -1,23 +1,29 @@
 {
-  "name": "attendance-calculator",
-  "private": true,
-  "workspaces": [
-    "server",
-    "client"
-  ],
-  "scripts": {
-    "dev:server": "bun run --watch server/src/index.ts",
-    "dev:client": "cd client; ng serve",
-    "dev": "bun --bun concurrently \"bun run dev:server\" \"bun run dev:client\"",
-    "test:server": "cd server; bun test",
-    "test:client": "cd client; ng test",
-    "test": "bun run test:server; bun run test:client"
-  },
-  "devDependencies": {
-    "concurrently": "^9.2.1"
-  },
-  "dependencies": {
-    "@bogeychan/elysia-logger": "^0.1.10",
-    "@elysiajs/openapi": "^1.4.14"
-  }
+	"name": "attendance-calculator",
+	"private": true,
+	"workspaces": [
+		"server",
+		"client"
+	],
+	"scripts": {
+		"dev:server": "bun run --watch server/src/index.ts",
+		"dev:client": "cd client; ng serve",
+		"dev": "bun --bun concurrently \"bun run dev:server\" \"bun run dev:client\"",
+		"test:server": "cd server; bun test",
+		"test:client": "cd client; ng test",
+		"test": "bun run test:server; bun run test:client",
+		"format": "biome format --write .",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"prepare": "husky"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.10",
+		"concurrently": "^9.2.1",
+		"husky": "^9.1.7"
+	},
+	"dependencies": {
+		"@bogeychan/elysia-logger": "^0.1.10",
+		"@elysiajs/openapi": "^1.4.14"
+	}
 }

@@ -1,2 +1,2 @@
-export { LogService } from "@/services/logs";
-export { SubjectService } from "@/services/subjects";
+export { LogService } from "@server/services/logs";
+export { SubjectService } from "@server/services/subjects";
