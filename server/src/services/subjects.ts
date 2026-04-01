@@ -1,104 +1,80 @@
-import { type Changes, type Database, SQLiteError } from "bun:sqlite";
+import { db } from "@server/db";
+import { subjects } from "@server/schema";
 import type {
 	CreateSubjectPayload,
 	Subject,
 	UpdateSubjectPayload,
 } from "@server/types";
+import { eq } from "drizzle-orm";
 
 export class SubjectService {
-	private db!: Database;
-
-	constructor(databaseInstance: Database) {
-		this.db = databaseInstance;
+	async findAll(): Promise<Subject[]> {
+		return await db.select().from(subjects);
 	}
 
-	findAll(): Subject[] {
-		const stmt = this.db.query<Subject, []>(
-			"SELECT id, name, present_count AS presentCount, total_lectures AS totalLectures FROM subjects;",
-		);
-		return stmt.all();
+	async findById(id: number): Promise<Subject | undefined> {
+		const result = await db
+			.select()
+			.from(subjects)
+			.where(eq(subjects.id, id))
+			.limit(1);
+
+		return result[0];
 	}
 
-	findById(subjectId: number): Subject | null {
-		const stmt = this.db.query<Subject, [number]>(
-			"SELECT id, name, present_count AS presentCount, total_lectures AS totalLectures FROM subjects WHERE id = ?;",
-		);
-		return stmt.get(subjectId);
-	}
-
-	findByName(subjectName: string): Subject | null {
-		const stmt = this.db.query<Subject, [string]>(
-			"SELECT id, name, present_count AS presentCount, total_lectures AS totalLectures FROM subjects WHERE name = ?;",
-		);
-		return stmt.get(subjectName);
-	}
-
-	createSubject(payload: CreateSubjectPayload): Changes {
+	async createSubject(payload: CreateSubjectPayload): Promise<Subject> {
 		try {
-			const stmt = this.db.query<Subject, [string, number, number]>(
-				"INSERT INTO subjects (name, present_count, total_lectures) VALUES (?, ?, ?);",
-			);
+			const [newSubject] = await db
+				.insert(subjects)
+				.values(payload)
+				.returning();
 
-			return stmt.run(
-				payload.name,
-				payload.presentCount ?? 0,
-				payload.totalLectures ?? 0,
-			);
-		} catch (error: unknown) {
+			return newSubject;
+		} catch (error) {
 			if (
-				error instanceof SQLiteError &&
-				error.message.includes("UNIQUE constraint failed")
+				error &&
+				typeof error === "object" &&
+				"code" in error &&
+				(error.code as number) === 23505
 			) {
-				throw new Error(`Subject '${payload.name}' already exists.`);
+				throw new Error(`Subject name ${payload.name} is already taken`);
 			}
 
 			throw error;
 		}
 	}
 
-	updateById(subjectId: number, updates: UpdateSubjectPayload): Changes {
-		if (Object.keys(updates).length === 0) {
+	async updateById(
+		id: number,
+		payload: UpdateSubjectPayload,
+	): Promise<Subject> {
+		if (Object.keys(payload).length === 0) {
 			throw new Error("No update fields provided.");
 		}
 
-		const setClauses: string[] = [];
-		const values: (string | number)[] = [];
-
-		if (updates.name !== undefined) {
-			setClauses.push("name = ?");
-			values.push(updates.name);
-		}
-
-		if (updates.presentCount !== undefined) {
-			setClauses.push("present_count = ?");
-			values.push(updates.presentCount);
-		}
-
-		if (updates.totalLectures !== undefined) {
-			setClauses.push("total_lectures = ?");
-			values.push(updates.totalLectures);
-		}
-
-		const sql = `UPDATE subjects SET ${setClauses.join(",")} WHERE id = ? RETURNING id, name, present_count AS presentCount, total_lectures AS totalLectures;`;
-		values.push(subjectId);
-
 		try {
-			const stmt = this.db.query(sql);
-			return stmt.run(...values);
-		} catch (error) {
-			if (
-				error instanceof SQLiteError &&
-				error.message.includes("UNIQUE constraint failed")
-			) {
-				throw new Error(`Subject name '${updates.name}' is already taken`);
-			}
+			const [updatedSubject] = await db
+				.update(subjects)
+				.set(payload)
+				.where(eq(subjects.id, id))
+				.returning();
 
+			return updatedSubject;
+			// biome-ignore lint/suspicious/noExplicitAny: <No other way to handle error>
+		} catch (error: any) {
+			if (error.code === "32505") {
+				throw new Error(`Subject name ${payload.name} is already taken.`);
+			}
 			throw error;
 		}
 	}
 
-	deleteById(subjectId: number): Changes {
-		const stmt = this.db.query("DELETE FROM subjects WHERE id = ?;");
-		return stmt.run(subjectId);
+	async deleteById(id: number): Promise<{ id: number }> {
+		const [deletedSubject] = await db
+			.delete(subjects)
+			.where(eq(subjects.id, id))
+			.returning({ id: subjects.id });
+
+		return deletedSubject;
 	}
 }

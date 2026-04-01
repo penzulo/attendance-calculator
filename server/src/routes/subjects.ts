@@ -1,29 +1,26 @@
-import { db } from "@server/db";
 import { SubjectService } from "@server/services";
 import {
-	ChangesSchema,
 	CreateSubjectPayloadSchema,
 	SubjectSchema,
 	UpdateSubjectPayloadSchema,
 } from "@server/types";
 import { Elysia, StatusMap, t } from "elysia";
 
-const subjectService = new SubjectService(db);
+const subjectService = new SubjectService();
 
 export const subjectRoutes = new Elysia({ prefix: "/subjects" })
 	.get(
 		"/",
-		({ set }) => {
+		async ({ set }) => {
 			set.status = StatusMap.OK;
-			return subjectService.findAll();
+			return await subjectService.findAll();
 		},
 		{ response: t.Array(SubjectSchema) },
 	)
-
 	.get(
 		"/:id",
-		({ params: { id }, set }) => {
-			const subject = subjectService.findById(id);
+		async ({ params: { id }, set }) => {
+			const subject = await subjectService.findById(id);
 			if (!subject) {
 				set.status = StatusMap["Not Found"];
 				return { error: "Subject not found" };
@@ -32,22 +29,18 @@ export const subjectRoutes = new Elysia({ prefix: "/subjects" })
 		},
 		{
 			params: t.Object({ id: t.Numeric() }),
-			response: t.Union([t.Object({ error: t.String() }), SubjectSchema]),
+			response: t.Union([SubjectSchema, t.Object({ error: t.String() })]),
 		},
 	)
-
 	.post(
 		"/",
-		({ body, set }) => {
+		async ({ body, set }) => {
 			try {
-				const result = subjectService.createSubject(body);
+				const result = await subjectService.createSubject(body);
 				set.status = StatusMap.Created;
-				return { id: result.lastInsertRowid };
+				return result;
 			} catch (error: unknown) {
-				if (
-					error instanceof Error &&
-					error.message.includes("already exists")
-				) {
+				if (error instanceof Error && error.message.includes("already taken")) {
 					set.status = StatusMap.Conflict;
 					return { error: error.message };
 				}
@@ -56,66 +49,57 @@ export const subjectRoutes = new Elysia({ prefix: "/subjects" })
 		},
 		{
 			body: CreateSubjectPayloadSchema,
-			response: t.Union([
-				t.Object({ id: t.Union([t.Numeric(), t.BigInt()]) }),
-				t.Object({ error: t.String() }),
-			]),
+			response: t.Union([SubjectSchema, t.Object({ error: t.String() })]),
 		},
 	)
-
 	.patch(
 		"/:id",
-		({ params: { id }, body, set }) => {
+		async ({ params: { id }, body, set }) => {
 			try {
-				const result = subjectService.updateById(id, body);
+				const result = await subjectService.updateById(id, body);
 
-				if (!result || result.changes === 0) {
+				if (!result) {
 					set.status = StatusMap["Not Found"];
 					return { error: "Subject not found" };
 				}
 
-				set.status = StatusMap.OK;
-				return { success: true };
+				return result;
 			} catch (error: unknown) {
-				if (error instanceof Error && error.message.includes("already taken")) {
-					set.status = StatusMap.Conflict;
-					return { error: error.message };
+				if (error instanceof Error) {
+					if (error.message.includes("already taken")) {
+						set.status = StatusMap.Conflict;
+						return { error: error.message };
+					}
+					if (error.message.includes("No update fields")) {
+						set.status = StatusMap["Bad Request"];
+						return { error: error.message };
+					}
+					throw error;
 				}
-				if (
-					error instanceof Error &&
-					error.message.includes("No update fields")
-				) {
-					set.status = StatusMap["Bad Request"];
-					return { error: error.message };
-				}
-
-				throw error;
 			}
 		},
 		{
 			params: t.Object({ id: t.Numeric() }),
 			body: UpdateSubjectPayloadSchema,
-			response: t.Union([
-				t.Object({ error: t.String() }),
-				t.Object({ success: t.Boolean() }),
-			]),
+			response: t.Union([SubjectSchema, t.Object({ error: t.String() })]),
 		},
 	)
 
 	.delete(
 		"/:id",
-		({ params: { id }, set }) => {
-			const result = subjectService.deleteById(id);
-			if (result.changes === 0) {
+		async ({ params: { id }, set }) => {
+			const result = await subjectService.deleteById(id);
+
+			if (!result) {
 				set.status = StatusMap["Not Found"];
 				return { error: "Subject not found" };
 			}
 
 			set.status = StatusMap["No Content"];
-			return result;
+			return undefined;
 		},
 		{
 			params: t.Object({ id: t.Numeric() }),
-			response: t.Union([t.Object({ error: t.String() }), ChangesSchema]),
+			response: t.Union([t.Object({ error: t.String() }), t.Undefined()]),
 		},
 	);

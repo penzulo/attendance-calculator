@@ -1,24 +1,10 @@
-import { Database } from "bun:sqlite";
+import * as schema from "@server/schema";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
-export const db = new Database("attendance.sqlite", { create: true });
+const connectionString = Bun.env.DATABASE_URL;
+if (!connectionString) throw new Error("Database connection string undefined.");
 
-db.run("PRAGMA foreign_keys = ON;");
+const queryClient = postgres(connectionString);
 
-db.run(`
-  CREATE TABLE IF NOT EXISTS subjects (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT UNIQUE,
-    present_count INTEGER DEFAULT 0,
-    total_lectures INTEGER DEFAULT 0
-  );
-`);
-
-db.run(`
-  CREATE TABLE IF NOT EXISTS logs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT, 
-    did_attend INTEGER DEFAULT 0, 
-    subject_id INTEGER, 
-    timestamp INTEGER,
-    CONSTRAINT fk_subjects FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
-  );
-`);
+export const db = drizzle(queryClient, { schema });

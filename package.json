@@ -6,16 +6,18 @@
 		"client"
 	],
 	"scripts": {
-		"dev:server": "bun run --watch server/src/index.ts",
-		"dev:client": "cd client; ng serve",
+		"prepare": "husky",
 		"dev": "bun --bun concurrently \"bun run dev:server\" \"bun run dev:client\"",
-		"test:server": "cd server; bun test",
-		"test:client": "cd client; ng test",
+		"dev:client": "cd client; ng serve",
+		"dev:server": "cd server; bun run --watch src/index.ts",
 		"test": "bun run test:server; bun run test:client",
-		"format": "biome format --write .",
+		"test:client": "cd client; ng test",
+		"test:server": "cd server; bun test",
 		"lint": "biome check .",
 		"lint:fix": "biome check --write .",
-		"prepare": "husky"
+		"format": "biome format --write .",
+		"drizzle:generate": "cd server; bunx drizzle-kit generate",
+		"drizzle:push": "cd server; bunx drizzle-kit push"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.10",
@@ -23,7 +25,6 @@
 		"husky": "^9.1.7"
 	},
 	"dependencies": {
-		"@bogeychan/elysia-logger": "^0.1.10",
-		"@elysiajs/openapi": "^1.4.14"
+		"@bogeychan/elysia-logger": "^0.1.10"
 	}
 }
