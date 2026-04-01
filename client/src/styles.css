@@ -1,3 +1,4 @@
-/* You can add global styles to this file, and also import other style files */
+/* client/src/styles.scss */
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap");
 
 @import "tailwindcss";

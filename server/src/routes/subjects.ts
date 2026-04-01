@@ -76,6 +76,9 @@ export const subjectRoutes = new Elysia({ prefix: "/subjects" })
 					}
 					throw error;
 				}
+
+				set.status = StatusMap["Internal Server Error"];
+				return { error: "An unexpected error" };
 			}
 		},
 		{

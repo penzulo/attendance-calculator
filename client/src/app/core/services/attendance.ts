@@ -66,4 +66,19 @@ export class AttendanceService {
 		await this.loadSubjects();
 		return true;
 	}
+
+	async logClass(subjectId: number, didAttend: boolean) {
+		this.isLoading.set(true);
+		const { error } = await api.logs.post({ subjectId, didAttend });
+
+		if (error) {
+			this.error.set(String(error.value));
+			this.isLoading.set(false);
+			return false;
+		}
+
+		// Immediately fetch the fresh math from Postgres.
+		await this.loadSubjects();
+		return true;
+	}
 }

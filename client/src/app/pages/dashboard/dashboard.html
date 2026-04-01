@@ -1,75 +1,183 @@
-<div class="dashboard">
-  <header>
-    <h1>Attendance Overview</h1>
+<div class="min-h-screen bg-[#f4f1eb] text-[#1a1714] font-sans px-8 py-10 max-w-[1100px] mx-auto">
+  <!-- Header -->
+  <header class="border-b-2 border-[#1a1714] pb-4 mb-8">
+    <h1 class="text-2xl font-semibold tracking-tight">
+      Attendance Overview
+      <span class="block w-12 h-[3px] bg-[#2a5caa] mt-1"></span>
+    </h1>
   </header>
 
+  <!-- Error -->
   @if (attendanceService.error()) {
-    <div class="error-banner">
-      {{ attendanceService.error() }}
-    </div>
+  <div
+    class="bg-[#fdecea] border border-[#c0392b] border-l-4 border-l-[#c0392b] text-[#c0392b] text-sm font-medium px-4 py-3 rounded mb-6">
+    {{ attendanceService.error() }}
+  </div>
   }
 
+  <!-- Loading -->
   @if (attendanceService.isLoading()) {
-    <div class="loading-spinner">Loading your subjects...</div>
+  <div class="text-center py-16 text-[#7a7268] text-sm font-mono tracking-wider">
+    <div class="w-7 h-7 border-2 border-[#d6d0c4] border-t-[#2a5caa] rounded-full mx-auto mb-4 animate-spin"></div>
+    Loading your subjects...
+  </div>
   } @else {
 
-    <section class="stats-grid">
-      <div class="stat-card">
-        <h3>Total Lectures</h3>
-        <p class="big-number">{{ attendanceService.totalOverallLectures() }}</p>
-      </div>
-      <div class="stat-card">
-        <h3>Total Attended</h3>
-        <p class="big-number">{{ attendanceService.totalOverallAttended() }}</p>
-      </div>
-      <div class="stat-card">
-        <h3>Overall %</h3>
-        <p class="big-number highlight">
-          {{ calculatePercentage(attendanceService.totalOverallAttended(), attendanceService.totalOverallLectures()) }}%
-        </p>
-      </div>
-    </section>
+  <!-- Stats -->
+  <section class="grid md:grid-cols-3 gap-4 mb-10">
+    <div
+      class="bg-white border border-[#d6d0c4] rounded shadow-sm p-5 hover:shadow-md transition transform hover:-translate-y-1 relative">
+      <div class="absolute left-0 top-0 h-full w-[3px] bg-[#a89f91] hover:bg-[#2a5caa]"></div>
+      <h3 class="text-[10px] uppercase tracking-widest text-[#7a7268] mb-2">Total Lectures</h3>
+      <p class="text-4xl font-mono">{{ attendanceService.totalOverallLectures() }}</p>
+    </div>
 
-    <section class="subjects-section">
-      <div class="section-header">
-        <h2>Your Subjects</h2>
-        <button type="button" class="primary-btn">+ Add Subject</button>
-      </div>
+    <div
+      class="bg-white border border-[#d6d0c4] rounded shadow-sm p-5 hover:shadow-md transition transform hover:-translate-y-1 relative">
+      <div class="absolute left-0 top-0 h-full w-[3px] bg-[#a89f91]"></div>
+      <h3 class="text-[10px] uppercase tracking-widest text-[#7a7268] mb-2">Total Attended</h3>
+      <p class="text-4xl font-mono">{{ attendanceService.totalOverallAttended() }}</p>
+    </div>
 
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Subject</th>
-              <th>Lectures</th>
-              <th>Attended</th>
-              <th>Attendance %</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (subject of attendanceService.subjects(); track subject.id) {
-              <tr>
-                <td><strong>{{ subject.name }}</strong></td>
-                <td>{{ subject.totalLectures }}</td>
-                <td>{{ subject.presentCount }}</td>
-                <td>
-                  <span class="badge" [class.danger]="calculatePercentage(subject.presentCount, subject.totalLectures) < 75">
-                    {{ calculatePercentage(subject.presentCount, subject.totalLectures) }}%
-                  </span>
-                </td>
-                <td>
-                  <button type="button" class="action-btn">Log Class</button>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="5" class="empty-state">No subjects found. Add one to get started!</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <div
+      class="bg-white border border-[#d6d0c4] rounded shadow-sm p-5 hover:shadow-md transition transform hover:-translate-y-1 relative">
+      <div class="absolute left-0 top-0 h-full w-[3px] bg-[#a89f91]"></div>
+      <h3 class="text-[10px] uppercase tracking-widest text-[#7a7268] mb-2">Overall %</h3>
+      <p class="text-4xl font-mono text-[#e8a020]">
+        {{ calculatePercentage(attendanceService.totalOverallAttended(), attendanceService.totalOverallLectures()) }}%
+      </p>
+    </div>
+  </section>
+
+  <!-- Subjects -->
+  <section class="bg-white border border-[#d6d0c4] rounded shadow-sm overflow-hidden">
+
+    <div class="flex justify-between items-center px-6 py-5 border-b bg-[#faf8f4]">
+      <h2 class="text-base font-semibold">Your Subjects</h2>
+      <button (click)="openModal()" type="button"
+        class="bg-[#2a5caa] text-white text-sm px-4 py-2 rounded hover:bg-[#1e4a8a] active:scale-95 transition">
+        + Add Subject
+      </button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-[#f4f1eb] text-[#7a7268] text-[10px] uppercase tracking-widest">
+            <th class="px-5 py-3 text-left">Subject</th>
+            <th class="px-5 py-3 text-left">Lectures</th>
+            <th class="px-5 py-3 text-left">Attended</th>
+            <th class="px-5 py-3 text-left">Attendance %</th>
+            <th class="px-5 py-3 text-left">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (subject of attendanceService.subjects(); track subject.id) {
+          <tr class="border-b hover:bg-[#faf8f4]">
+            <td class="px-5 py-4 font-medium">{{ subject.name }}</td>
+
+            <td class="px-5 py-4 font-mono text-[#7a7268]">
+              {{ subject.totalLectures }}
+            </td>
+
+            <td class="px-5 py-4 font-mono text-[#7a7268]">
+              {{ subject.presentCount }}
+            </td>
+
+            <td class="px-5 py-4">
+              <span class="inline-block font-mono text-xs px-2 py-1 rounded border text-center min-w-[3.5rem]"
+                [ngClass]="calculatePercentage(subject.presentCount, subject.totalLectures) < 75
+                  ? 'bg-[#fdecea] text-[#c0392b] border-[#f0b8b4]'
+                  : 'bg-[#e6f0e6] text-[#1a6e3c] border-[#b8d8b8]'">
+                {{ calculatePercentage(subject.presentCount, subject.totalLectures) }}%
+              </span>
+            </td>
+
+            <td class="px-5 py-4">
+              <div class="inline-flex items-center border border-[#d6d0c4] rounded overflow-hidden">
+
+                <!-- Present -->
+                <button (click)="attendanceService.logClass(subject.id, true)" type="button"
+                  [disabled]="attendanceService.isLoading()"
+                  class="px-3 py-1.5 text-xs font-mono text-[#1a6e3c] bg-[#e6f0e6] hover:bg-[#d4e8d4] transition disabled:opacity-50">
+                  ✓ Present
+                </button>
+
+                <!-- Divider -->
+                <div class="w-px h-5 bg-[#d6d0c4]"></div>
+
+                <!-- Absent -->
+                <button (click)="attendanceService.logClass(subject.id, false)" type="button"
+                  [disabled]="attendanceService.isLoading()"
+                  class="px-3 py-1.5 text-xs font-mono text-[#c0392b] bg-[#fdecea] hover:bg-[#f9d6d2] transition disabled:opacity-50">
+                  ✕ Absent
+                </button>
+
+              </div>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="5" class="text-center py-12 text-[#7a7268] italic text-sm">
+              No subjects found. Add one to get started!
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
   }
+
 </div>
+
+<!-- Modal -->
+@if (isModalOpen()) {
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+
+  <div class="bg-white border border-[#d6d0c4] rounded shadow-xl w-full max-w-md animate-[fadeIn_.15s]">
+
+    <div class="flex justify-between items-center px-6 py-5 border-b bg-[#faf8f4]">
+      <h2 class="text-base font-semibold">Add New Subject</h2>
+      <button type="button" (click)="closeModal()" class="text-xl text-[#7a7268] hover:text-[#1a1714]">×</button>
+    </div>
+
+    <form [formGroup]="subjectForm" (ngSubmit)="onSubmitSubject()" class="p-6 flex flex-col gap-5">
+
+      <div>
+        <label class="text-xs uppercase tracking-wide text-[#7a7268]">Subject Name</label>
+        <input type="text" formControlName="name"
+          class="w-full mt-1 px-3 py-2 border rounded bg-[#f4f1eb] focus:border-[#2a5caa] focus:ring-2 focus:ring-[#d8e3f5]"
+          [ngClass]="{'border-[#c0392b]': subjectForm.controls.name.invalid && subjectForm.controls.name.touched}" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-xs uppercase text-[#7a7268]">Total Lectures</label>
+          <input type="number" formControlName="totalLectures"
+            class="w-full mt-1 px-3 py-2 border rounded bg-[#f4f1eb]" />
+        </div>
+
+        <div>
+          <label class="text-xs uppercase text-[#7a7268]">Attended</label>
+          <input type="number" formControlName="presentCount"
+            class="w-full mt-1 px-3 py-2 border rounded bg-[#f4f1eb]" />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-3 border-t">
+        <button type="button" (click)="closeModal()" class="border px-4 py-2 rounded text-sm hover:bg-[#f4f1eb]">
+          Cancel
+        </button>
+
+        <button type="submit" [disabled]="subjectForm.invalid || attendanceService.isLoading()"
+          class="bg-[#2a5caa] text-white px-4 py-2 rounded text-sm hover:bg-[#1e4a8a] disabled:opacity-50">
+          Save Subject
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+}
