@@ -6,11 +6,12 @@ import {
 	ReactiveFormsModule,
 	Validators,
 } from "@angular/forms";
+import { AttendanceChart } from "@client/app/components/attendance-chart/attendance-chart";
 import { AttendanceService } from "@client/app/core/services/attendance";
 
 @Component({
 	selector: "app-dashboard",
-	imports: [CommonModule, ReactiveFormsModule],
+	imports: [CommonModule, ReactiveFormsModule, AttendanceChart],
 	templateUrl: "./dashboard.html",
 	styleUrl: "./dashboard.css",
 })

@@ -1,0 +1,17 @@
+<div class="chart-wrapper">
+  <div class="chart-header">
+    <h3>Attendance Projection</h3>
+    <span class="target-badge">Target: {{ targetPercentage() }}%</span>
+  </div>
+
+  <div class="progress-track">
+    <div class="target-line" [style.left.%]="targetPercentage()"></div>
+
+    <div class="progress-fill" [style.width.%]="percentage()" [class.danger]="!isSafe()"></div>
+  </div>
+
+  <div class="status-message" [class.danger-text]="!isSafe()">
+    <span class="icon">{{ isSafe() ? '✓' : '⚠️' }}</span>
+    {{ bunkStatus() }}
+  </div>
+</div>

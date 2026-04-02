@@ -1,0 +1,92 @@
+.chart-wrapper {
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 1.5rem;
+	margin-bottom: 2.5rem;
+	box-shadow: var(--shadow-sm);
+}
+
+.chart-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+
+.chart-header h3 {
+	font-family: var(--sans);
+	font-size: 0.9rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--text-primary);
+	margin: 0;
+}
+
+.target-badge {
+	font-family: var(--mono);
+	font-size: 0.75rem;
+	background: var(--bg);
+	padding: 0.2rem 0.5rem;
+	border: 1px solid var(--border-dark);
+	border-radius: var(--radius);
+	color: var(--text-muted);
+}
+
+/* The Bar Track */
+.progress-track {
+	width: 100%;
+	height: 24px;
+	background: var(--danger-dim);
+	/* Background is the "missed" portion */
+	border-radius: var(--radius);
+	position: relative;
+	overflow: hidden;
+	border: 1px solid var(--border);
+}
+
+/* The Fill */
+.progress-fill {
+	height: 100%;
+	background: var(--success);
+	transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+	border-right: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.progress-fill.danger {
+	background: var(--highlight);
+	/* Turns amber if below target */
+}
+
+/* The Target Finish Line */
+.target-line {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 2px;
+	background: var(--text-primary);
+	z-index: 10;
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Status Message */
+.status-message {
+	margin-top: 1rem;
+	font-family: var(--sans);
+	font-size: 0.85rem;
+	color: var(--text-muted);
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.status-message.danger-text {
+	color: var(--danger);
+	font-weight: 500;
+}
+
+.icon {
+	font-family: var(--mono);
+	font-size: 1rem;
+}
